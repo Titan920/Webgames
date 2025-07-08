@@ -1,0 +1,125 @@
+from zipfile import ZipFile
+import os
+
+# Create folder structure
+base_path = "/mnt/data/webgames"
+os.makedirs(base_path, exist_ok=True)
+os.makedirs(f"{base_path}/games", exist_ok=True)
+os.makedirs(f"{base_path}/images", exist_ok=True)
+
+# Create style.css
+style_css = """
+body {
+    font-family: Arial, sans-serif;
+    background-color: #111;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+.header {
+    background-color: #222;
+    padding: 20px;
+    text-align: center;
+}
+.header img {
+    height: 50px;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 20px;
+}
+.card {
+    background: #1e1e1e;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    padding: 10px;
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: scale(1.05);
+}
+.card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+.card h3 {
+    margin: 10px 0 5px;
+}
+.card p {
+    font-size: 14px;
+    color: #ccc;
+}
+.card a {
+    color: #4fc3f7;
+    text-decoration: none;
+}
+"""
+with open(f"{base_path}/style.css", "w") as f:
+    f.write(style_css)
+
+# Create index.html with 100 game cards
+game_cards = ""
+for i in range(1, 101):
+    game_cards += f"""
+    <div class="card">
+        <img src="images/game{i}.png" alt="Game {i}">
+        <h3>Game {i}</h3>
+        <p>Play the fun Game {i} now!</p>
+        <a href="games/game{i}.html">Play Game</a>
+    </div>
+    """
+
+index_html = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Games</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <img src="logo.png" alt="Web Games Logo">
+        <h1>Welcome to Web Games</h1>
+    </div>
+    <div class="grid">
+        {game_cards}
+    </div>
+</body>
+</html>
+"""
+with open(f"{base_path}/index.html", "w") as f:
+    f.write(index_html)
+
+# Create 100 placeholder game HTML files
+game_html_template = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{title}</title>
+</head>
+<body style="background-color:#000;color:#fff;text-align:center;">
+    <h1>{title}</h1>
+    <p>This is a placeholder for {title}. Your game will be here soon!</p>
+</body>
+</html>
+"""
+for i in range(1, 101):
+    game_file_path = f"{base_path}/games/game{i}.html"
+    with open(game_file_path, "w") as f:
+        f.write(game_html_template.format(title=f"Game {i}"))
+
+# Create the ZIP file
+zip_path = "/mnt/data/webgames_complete.zip"
+with ZipFile(zip_path, 'w') as zipf:
+    for foldername, subfolders, filenames in os.walk(base_path):
+        for filename in filenames:
+            filepath = os.path.join(foldername, filename)
+            arcname = os.path.relpath(filepath, base_path)
+            zipf.write(filepath, arcname)
+
+zip_path
